@@ -11,7 +11,7 @@ int main()
     
     g.printAdjList();
 
-    g.bfs(3);
+    g.dfs(3);
 
     return 0;
 }
