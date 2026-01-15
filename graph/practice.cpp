@@ -1,83 +1,93 @@
 #include "Graph.h"
 
-class ExtendedClass:public Graph{
-   
-    public:
-     vector<bool>vis;
-        ExtendedClass(int n):Graph(n){
-            vis.resize(n,false);
-        }
-
-        bool cycleDetect(int src){
-            queue<pair<int,int>>q;
-            vis[src]=true;
-            q.push({src,-1});
-
-            while(!q.empty())
-            {
-                int n=q.front().first;
-                int p=q.front().second;
-                q.pop();
-
-                for(auto neig:l[n])
-                {
-                    if(!vis[neig])
-                    {
-                        q.push({neig,n});
-                        vis[neig]=true;
-                    }else if(neig!=p){
-                        return true;
-                    }
-                }
-
-            }
-            return false;
-        }
-
-        bool dfsDirectedCycle(int cur,vector<bool>vis,recPath)
-        {
-            vis[curr]=true;
-            recPath[cur]=true;
-
-            for(auto neig:l[cur])
-            {
-                if(!vis[neig])
-                {
-                   if(solve(neig,vis,recPath))
-                   {
-                    return true;
-                   }
-                }else if(recPath[neig]){
-                    return true;
-                }
-                recPath[curr]=false;
-                return false;
-            }
-        }
-
-};
-int main()
+void dfs(int n,Graph &g,vector<bool>&vis,stack<int>&st)
 {
-    ExtendedClass g(5);
-
-    // g.addEdge(1,0);
-    // g.addEdge(0,2);
-    // g.addEdge(0,3);
-    // g.addEdge(3,4);
-    g.addEdge(1,0);
-    g.addEdge(2,3);
-
-    for(int i=0;i<5;i++)
+    vis[n]=true;
+    for(auto neig:g.l[n])
     {
-        if(!g.vis[i])
+        if(!vis[neig])
         {
-            if(g.cycleDetect(i))
-            {
-                cout<<"Detected cycle\n";
-                return 0;
-            }
-
+            dfs(neig,g,vis,st);
         }
     }
-    
+    st.push(n);
+}
+void dfs3(int n,Graph &g,vector<bool>&vis)
+{
+    vis[n]=true;
+    for(auto neig:g.l[n])
+    {
+        if(!vis[neig])
+        {
+            dfs3(neig,g,vis);
+        }
+    }
+}
+int ssc(Graph &g)
+{
+    int ssc=0;
+//    for(int i=0;i<8;i++)
+//    {
+//      cout<< i << " : ";
+//     for(auto k:g.l[i])cout<<k<<" ";
+//     cout<<endl;
+//    }
+
+ stack<int>st;
+ vector<bool>vis(9,false);
+
+ for(int i=0;i<8;i++)
+ {
+    if(!vis[i])
+    {
+       dfs(i,g,vis,st);
+    }
+ }
+
+ Graph gT(8);
+ for(int i=0;i<8;i++)
+ {
+    for(auto neig:g.l[i])
+    {
+        gT.l[neig].push_back(i);
+    }
+ }
+for(int i=0;i<8;i++)
+{
+    vis[i]=false;
+}
+//    for(int i=0;i<8;i++)
+//    {
+//      cout<< i << " : ";
+//     for(auto k:gT.l[i])cout<<k<<" ";
+//     cout<<endl;
+//    }
+ while(!st.empty())
+ {
+    if(!vis[st.top()])
+    {
+        dfs3(st.top(),gT,vis);
+        ssc++;
+    }
+    st.pop();
+ }
+
+   return ssc;
+}
+int main()
+{
+    Graph g(8);
+    g.addEdgeDirected(0,1);
+    g.addEdgeDirected(1,2);
+    g.addEdgeDirected(2,0);
+    g.addEdgeDirected(1,3);
+    g.addEdgeDirected(3,4);
+    g.addEdgeDirected(4,5);
+    g.addEdgeDirected(5,6);
+    g.addEdgeDirected(6,4);
+    g.addEdgeDirected(5,7);
+    g.addEdgeDirected(6,7);
+    // g.printAdjList();
+    // g.dfs(0);
+    cout<<ssc(g);
 }
